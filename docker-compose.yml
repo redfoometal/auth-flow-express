@@ -1,0 +1,24 @@
+services:
+    # server:
+    #   build:
+    #     context: .
+    #   environment:
+    #     NODE_ENV: production
+    #   ports:
+    #     - 4000:4000
+
+    mysql:
+        image: mysql:8.4
+        environment:
+            MYSQL_ROOT_PASSWORD: 123456
+            MYSQL_DATABASE: auth-flow
+            MYSQL_USER: user
+            MYSQL_PASSWORD: 123123
+        ports:
+            - 3306:3306
+
+    redis:
+        image: redis:7.4.2
+        ports:
+            - 6379:6379
+        restart: always
