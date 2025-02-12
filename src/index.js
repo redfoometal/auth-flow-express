@@ -5,7 +5,7 @@ import { logger } from './lib/logger.js';
 import { authRouter } from './modules/auth/auth.route.js';
 import bodyParser from 'body-parser';
 import { errorMiddleware } from './middleware/error.middleware.js';
-import useragent from 'useragent';
+import { redisClient } from './config/redis-client.js';
 
 dotenv.config();
 
@@ -29,7 +29,20 @@ async function assertDatabaseConnectionOk() {
     }
 }
 
+async function assertRedisConnectionOk() {
+    logger.info(`[REDIS] Checking redis connection...`);
+    try {
+        await redisClient.connect();
+        logger.info('[REDIS] Redis connection OK!');
+    } catch (error) {
+        logger.error('[REDIS] Unable to connect to the redis:');
+        logger.error(error);
+        process.exit(1);
+    }
+}
+
 await assertDatabaseConnectionOk();
+await assertRedisConnectionOk();
 
 // parse application/json
 app.use(bodyParser.json());

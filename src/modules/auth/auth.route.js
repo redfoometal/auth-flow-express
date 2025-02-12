@@ -1,11 +1,18 @@
-import { Router } from 'express';
 import { authController } from './auth.controller.js';
+import { BaseRouter } from '../../core/BaseRouter.js';
 
-const authRouter = Router();
+class AuthRouter extends BaseRouter {
+    constructor() {
+        super();
+        this.setupRoutes();
+    }
 
-authRouter.post('/signup', authController.signup.bind(authController));
-authRouter.post('/signin', authController.signin.bind(authController));
-authRouter.post('/signin/new_token');
-authRouter.get('/logout');
+    setupRoutes() {
+        this.router.post('/signup', authController.signup.bind(authController));
+        this.router.post('/signin', authController.signin.bind(authController));
+        this.router.post('/signin/new_token');
+        this.router.get('/logout');
+    }
+}
 
-export { authRouter };
+export const authRouter = new AuthRouter().getRouter();

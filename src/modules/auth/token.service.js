@@ -1,9 +1,14 @@
 import jwt from 'jsonwebtoken';
+import { tokenRepository } from './token.repository.js';
 
 class TokenService {
+    constructor(tokenRepository) {
+        this.tokenRepository = tokenRepository;
+    }
     async generateTokens(userId, deviceId) {
         const accessToken = await this.#generateAccessToken({ userId });
         const refreshToken = await this.#generateRefreshToken({ userId }, deviceId);
+        await this.tokenRepository.saveRefreshToken(userId, deviceId, refreshToken);
         return { accessToken, refreshToken };
     }
 
@@ -17,4 +22,4 @@ class TokenService {
     }
 }
 
-export const tokenService = new TokenService();
+export const tokenService = new TokenService(tokenRepository);

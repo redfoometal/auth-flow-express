@@ -4,6 +4,10 @@ import { models } from '../../sequelize/index.js';
 import { tokenService } from './token.service.js';
 
 class AuthService {
+    constructor(tokenService) {
+        this.tokenService = tokenService;
+    }
+
     async signup(id, password, deviceId) {
         try {
             const existingUser = await models.user.findOne({ where: { id } });
@@ -14,7 +18,7 @@ class AuthService {
             const hashPassword = await argon2.hash(password);
             const user = await models.user.create({ id, password: hashPassword });
 
-            return await tokenService.generateTokens(user.id, deviceId);
+            return await this.tokenService.generateTokens(user.id, deviceId);
         } catch (error) {
             throw error;
         }
@@ -32,11 +36,11 @@ class AuthService {
                 throw new NotFoundException('Неверный пароль');
             }
 
-            return await tokenService.generateTokens({ id: existingUser.id });
+            return await this.tokenService.generateTokens({ id: existingUser.id });
         } catch (error) {
             throw error;
         }
     }
 }
 
-export const authService = new AuthService();
+export const authService = new AuthService(tokenService);

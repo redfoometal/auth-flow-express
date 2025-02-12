@@ -21,8 +21,7 @@
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
     "redis": "^4.7.0",
-    "sequelize": "^6.37.5",
-    "useragent": "^2.3.0"
+    "sequelize": "^6.37.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
