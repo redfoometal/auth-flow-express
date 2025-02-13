@@ -3,9 +3,12 @@ import dotenv from 'dotenv';
 import { sequelize } from './sequelize/index.js';
 import { logger } from './lib/logger.js';
 import { authRouter } from './modules/auth/auth.route.js';
-import bodyParser from 'body-parser';
-import { errorMiddleware } from './middleware/error.middleware.js';
+import { errorMiddleware } from './middlewares/error.middleware.js';
 import { redisClient } from './config/redis-client.js';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { userRouter } from './modules/user/user.route.js';
+import { fileRouter } from './modules/file/file.route.js';
 
 dotenv.config();
 
@@ -19,7 +22,7 @@ async function assertDatabaseConnectionOk() {
         logger.info('[DB] Database connection OK!');
 
         if (process.env.NODE_ENV === 'development') {
-            await sequelize.sync({ force: true, alter: true });
+            await sequelize.sync({ alter: true });
             logger.info('[DB] Model synchronization done!');
         }
     } catch (error) {
@@ -44,13 +47,16 @@ async function assertRedisConnectionOk() {
 await assertDatabaseConnectionOk();
 await assertRedisConnectionOk();
 
-// parse application/json
-app.use(bodyParser.json());
+app.use(cors({ credentials: true, origin: '*' }));
+app.use(express.json());
+app.use(cookieParser());
 
-app.use('/', authRouter);
+app.use(authRouter);
+app.use(userRouter);
+app.use('/file', fileRouter);
 
 app.use(errorMiddleware);
 
 app.listen(port, () => {
-    logger.info(`Example app listening on port ${port}`);
+    logger.info(`App listening on port ${port}`);
 });

@@ -12,8 +12,25 @@ class TokenService {
         return { accessToken, refreshToken };
     }
 
+    async validateRefreshToken(refreshToken, deviceId) {
+        try {
+            const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+            const userId = payload?.userId;
+            if (!userId) return null;
+
+            const storedToken = await this.tokenRepository.getRefreshToken(userId, deviceId);
+            if (storedToken !== refreshToken) {
+                return null;
+            }
+
+            return userId;
+        } catch {
+            return null;
+        }
+    }
+
     async #generateAccessToken(payload) {
-        return jwt.sign({ payload }, process.env.JWT_ACCESS_SECRET, { expiresIn: '10m' });
+        return jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: '10m' });
     }
 
     async #generateRefreshToken(payload) {

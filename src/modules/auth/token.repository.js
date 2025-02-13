@@ -18,6 +18,15 @@ class TokenRepository {
     async deleteRefreshToken(userId, deviceId) {
         await this.client.del(`user:${userId}:device:${deviceId}`);
     }
+
+    async addToBlacklist(token) {
+        await this.client.set(`blacklist:${token}`, 'true', { EX: 60 * 10 });
+    }
+
+    async isTokenBlacklisted(token) {
+        const exists = await this.client.get(`blacklist:${token}`);
+        return exists !== null;
+    }
 }
 
 export const tokenRepository = new TokenRepository(redisClient);

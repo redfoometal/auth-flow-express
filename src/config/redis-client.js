@@ -2,8 +2,8 @@ import { createClient } from 'redis';
 import { logger } from '../lib/logger.js';
 
 class RedisClient {
-    constructor(redis) {
-        this.client = createClient();
+    constructor() {
+        this.client = createClient({ url: `redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}` });
         this.client.on('error', (err) => logger.info('Redis Client Error', err));
     }
 

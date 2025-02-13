@@ -1,5 +1,6 @@
-import { HttpException, InternalServerErrorException } from "../lib/http-exeption.js";
-import { logger } from "../lib/logger.js";
+import { MulterError } from 'multer';
+import { HttpException, InternalServerErrorException } from '../lib/http-exeption.js';
+import { logger } from '../lib/logger.js';
 
 const multerErrorMessagesMap = new Map([
     ['LIMIT_FILE_SIZE', 'Файл слишком большой!'],
@@ -23,22 +24,22 @@ export const errorMiddleware = (err, req, res, next) => {
         return;
     }
 
-    // if (err instanceof MulterError) {
-    //     logger.error({
-    //         err,
-    //         method: req.method,
-    //         url: req.url,
-    //     });
+    if (err instanceof MulterError) {
+        logger.error({
+            err,
+            method: req.method,
+            url: req.url,
+        });
 
-    //     const message = multerErrorMessagesMap.get(err.code) || 'Что то пошло не так при загрузке видео';
+        const message = multerErrorMessagesMap.get(err.code) || 'Что то пошло не так при загрузке видео';
 
-    //     res.status(400).json({
-    //         success: false,
-    //         status: 'error',
-    //         message,
-    //     });
-    //     return;
-    // }
+        res.status(400).json({
+            success: false,
+            status: 'error',
+            message,
+        });
+        return;
+    }
 
     logger.fatal({
         err,
