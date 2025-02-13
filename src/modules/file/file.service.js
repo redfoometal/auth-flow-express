@@ -1,21 +1,24 @@
 import { rimraf } from 'rimraf';
-import { models } from '../../sequelize/index.js';
 import { NotFoundException } from '../../lib/http-exeption.js';
 import { logger } from '../../lib/logger.js';
+import { prisma } from '../../config/prisma.js';
 
 class FileService {
-    constructor(models) {
-        this.models = models;
+    constructor(prisma) {
+        this.prisma = prisma;
     }
     async uploadFile(name, mimetype, extension, size, path) {
         try {
-            const file = await this.models.file.create({
-                name,
-                mimetype,
-                extension,
-                size,
-                path,
+            const file = await this.prisma.file.create({
+                data: {
+                    name,
+                    mimetype,
+                    extension,
+                    size,
+                    path,
+                },
             });
+
             logger.info(`File ${file.name}${file.extension} uploaded successfully`);
             return file;
         } catch (error) {
@@ -25,7 +28,10 @@ class FileService {
 
     async getFileInfo(fileId) {
         try {
-            const fileRecord = await this.models.file.findByPk(fileId);
+            const fileRecord = await this.prisma.file.findUnique({
+                where: { id: fileId },
+            });
+
             if (!fileRecord) throw new NotFoundException('File not found');
 
             return fileRecord;
@@ -36,7 +42,11 @@ class FileService {
 
     async getList(page, list_size) {
         try {
-            const files = await this.models.file.findAll({ limit: list_size, offset: (page - 1) * list_size });
+            const files = await this.prisma.file.findMany({
+                skip: (page - 1) * list_size,
+                take: list_size,
+            });
+
             return files;
         } catch (error) {
             throw error;
@@ -45,16 +55,24 @@ class FileService {
 
     async updateFile(id, file) {
         try {
-            const fileRecord = await this.models.file.findByPk(id);
+            const fileRecord = await this.prisma.file.findUnique({
+                where: { id },
+            });
             if (!fileRecord) {
                 rimraf(file.path);
                 throw new NotFoundException('File not found');
             }
-            const fileRecordPath = fileRecord.path;
-            await fileRecord.update(file);
-            rimraf(fileRecordPath);
+
+            const updatedFile = await this.prisma.file.update({
+                where: { id },
+                data: file,
+            });
+
+            rimraf(fileRecord.path);
+
             logger.info(`Update file with id ${fileRecord.id}`);
-            return fileRecord;
+
+            return updatedFile;
         } catch (error) {
             throw error;
         }
@@ -62,9 +80,20 @@ class FileService {
 
     async deleteFile(id) {
         try {
-            const file = await this.models.file.findByPk(id);
-            await file.destroy();
+            const file = await this.prisma.file.findUnique({
+                where: { id },
+            });
+
+            if (!file) {
+                throw new NotFoundException('File not found');
+            }
+
+            await this.prisma.file.delete({
+                where: { id },
+            });
+
             rimraf(file.path);
+
             logger.info(`Delete file with id ${file.id}`);
             return { message: 'File deleted' };
         } catch (error) {
@@ -73,4 +102,4 @@ class FileService {
     }
 }
 
-export const fileService = new FileService(models);
+export const fileService = new FileService(prisma);

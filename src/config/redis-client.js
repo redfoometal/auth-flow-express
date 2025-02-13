@@ -1,5 +1,8 @@
 import { createClient } from 'redis';
 import { logger } from '../lib/logger.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 class RedisClient {
     constructor() {

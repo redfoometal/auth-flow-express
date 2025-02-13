@@ -8,16 +8,17 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "migrate": "npx sequelize-cli db:migrate --config=src/config/config.js"
+    "dev": "nodemon src/index.js"
   },
   "dependencies": {
+    "@prisma/client": "^6.3.1",
     "argon2": "^0.41.1",
     "body-parser": "^1.20.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.12.0",
@@ -25,13 +26,11 @@
     "passport-jwt": "^4.0.1",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
+    "prisma": "^6.3.1",
     "redis": "^4.7.0",
-    "rimraf": "^6.0.1",
-    "sequelize": "^6.37.5",
-    "sequelize-cli": "^6.6.2"
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
-    
   }
 }

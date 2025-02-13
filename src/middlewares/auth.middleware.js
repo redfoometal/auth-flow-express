@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
-import { models } from '../sequelize/index.js';
 import { tokenRepository } from '../modules/auth/token.repository.js';
+import { prisma } from '../config/prisma.js';
 
 const opts = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -14,12 +14,15 @@ passport.use(
         try {
             const token = req.headers['authorization'].split(' ')[1];
             const isBlacklisted = await tokenRepository.isTokenBlacklisted(token);
-            
+
             if (isBlacklisted) {
                 return done(null, false);
             }
 
-            const user = await models.user.findByPk(jwtPayload.userId);
+            const user = await prisma.user.findUnique({
+                where: { id: jwtPayload.userId },
+            });
+
             if (!user) {
                 return done(null, false);
             }

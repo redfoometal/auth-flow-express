@@ -61,7 +61,7 @@ class AuthController {
 
             if (!refreshTokenFromCookie && !refreshTokenFromBody) {
                 await this.deleteAuthCookies(res);
-                throw new UnauthorizedException('Refresh token not found');
+                throw new UnauthorizedException('refreshToken not found');
             }
 
             const tokens = await this.authService.newToken(refreshTokenFromCookie || refreshTokenFromBody, deviceId);

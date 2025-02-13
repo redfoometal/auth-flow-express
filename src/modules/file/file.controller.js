@@ -1,5 +1,5 @@
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '../../lib/http-exeption.js';
-import path from 'path';
+import path, { parse } from 'path';
 import { fileService } from './file.service.js';
 import { logger } from '../../lib/logger.js';
 import fs from 'fs';
@@ -11,9 +11,6 @@ class FileController {
     async uploadFile(req, res, next) {
         try {
             const file = req.file;
-            if (!file) {
-                throw new BadRequestException('File not found');
-            }
             const { originalname, mimetype, path: filePath, size } = file;
             const extension = path.extname(originalname);
             const originalnameWithoutExt = path.basename(originalname, extension);
@@ -27,11 +24,11 @@ class FileController {
 
     async getFileInfo(req, res, next) {
         try {
-            const { id } = req.params;
-            const data = await this.fileService.getFileInfo(id);
-            res.send(data);
+            const fileId = Number(req.params.id);
+            const fileInfo = await this.fileService.getFileInfo(fileId);
+            return res.send(fileInfo);
         } catch (error) {
-            next(error);
+            return next(error);
         }
     }
 
@@ -49,7 +46,7 @@ class FileController {
     async downloadFile(req, res, next) {
         logger.info('Starting file transfer');
         try {
-            const { id } = req.params;
+            const id = Number(req.params.id);
             const file = await this.fileService.getFileInfo(id);
 
             try {
@@ -84,11 +81,9 @@ class FileController {
     async updateFile(req, res, next) {
         logger.info('Starting file update');
         try {
-            const { id } = req.params;
+            const id = Number(req.params.id);
             const file = req.file;
-            if (!file) {
-                throw new BadRequestException('File not found');
-            }
+
             const { originalname, mimetype, path: filePath, size } = file;
             const extension = path.extname(originalname);
             const originalnameWithoutExt = path.basename(originalname, extension);
@@ -109,7 +104,7 @@ class FileController {
     async deleteFile(req, res, next) {
         logger.info('Starting file delete');
         try {
-            const { id } = req.params;
+            const id = Number(req.params.id);
             const data = await this.fileService.deleteFile(id);
             res.send(data);
         } catch (error) {
