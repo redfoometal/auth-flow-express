@@ -13,7 +13,5 @@ RUN --mount=type=bind,source=package.json,target=package.json \
 
 COPY . .
 
-RUN npm install -g prisma
-
 CMD npx prisma migrate deploy && npx prisma generate && npm start
 

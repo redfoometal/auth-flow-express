@@ -8,8 +8,6 @@ services:
             NODE_ENV: production
             DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
             DB_HOST: ${DB_HOST}
-            DB_USER: ${DB_USER}
-            DB_PASSWORD: ${DB_PASSWORD}
             DB_NAME: ${DB_NAME}
             REDIS_HOST: ${REDIS_HOST}
             REDIS_PORT: ${REDIS_PORT}
@@ -26,10 +24,8 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
             MYSQL_DATABASE: ${DB_NAME}
-            MYSQL_USER: ${DB_USER}
-            MYSQL_PASSWORD: ${DB_PASSWORD}
         ports:
-            - 3306:3306
+            - ${DB_PORT}:${DB_PORT}
         healthcheck:
             test: [ 'CMD', 'mysqladmin', 'ping', '-h', 'localhost' ]
             interval: 10s
@@ -39,5 +35,5 @@ services:
     redis:
         image: redis:7.4.2
         ports:
-            - 6379:6379
+            - ${REDIS_PORT}:${REDIS_PORT}
         restart: always
